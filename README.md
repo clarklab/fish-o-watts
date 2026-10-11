@@ -4,6 +4,8 @@
 
 It's built mobile-first (portrait or landscape) and also plays fine on desktop.
 
+**▶ Play: https://rockport.superfun.games**
+
 ## The objectives
 
 These are always on screen in the HUD checklist:
@@ -64,10 +66,11 @@ Options menu:
 
 ## Deploying to Netlify
 
-`netlify.toml` is included, so connecting this repo in Netlify (*Add new site → Import an existing project*) is all it takes:
+Production is **https://rockport.superfun.games**. Netlify auto-deploys every push to `main`, and every PR gets a deploy preview.
+
+`netlify.toml` holds the build settings:
 
 - Build command: `npm run build`
 - Publish directory: `dist`
 - Node: 22
 
-You can also build locally and drag the `dist/` folder into Netlify Drop.
