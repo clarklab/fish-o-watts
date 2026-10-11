@@ -1,0 +1,20 @@
+{
+  "name": "fish-o-watts",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Shaheen's Rockport Voltage Odyssey — a bonkers PS2-flavored fishing + EV charging game.",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview --host"
+  },
+  "dependencies": {
+    "@fontsource/bungee": "^5.3.0",
+    "@fontsource/russo-one": "^5.3.0",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "vite": "^8.3.4"
+  }
+}
