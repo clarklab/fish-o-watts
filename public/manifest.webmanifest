@@ -1,0 +1,11 @@
+{
+  "name": "Shaheen's FISH-O-WATTS",
+  "short_name": "FISH-O-WATTS",
+  "description": "Catch fish. Charge the car. Don't get zapped. A Rockport, TX voltage odyssey.",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#000000",
+  "theme_color": "#0a0420",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

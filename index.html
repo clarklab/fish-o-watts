@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0420" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="Shaheen's FISH-O-WATTS: catch fish and charge an electric car on sketchy mixed-voltage chargers in Rockport, Texas. A 3-minute PS2-flavored fever dream." />
+  <link rel="canonical" href="https://rockport.superfun.games/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://rockport.superfun.games/" />
+  <meta property="og:title" content="SHAHEEN'S FISH-O-WATTS" />
+  <meta property="og:description" content="Catch fish. Charge the car. Don't get zapped. (You will get zapped.) A Rockport, TX voltage odyssey." />
+  <meta property="og:image" content="https://rockport.superfun.games/og.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SHAHEEN'S FISH-O-WATTS" />
+  <meta name="twitter:description" content="Catch fish. Charge the car. Don't get zapped. A 3-minute PS2-flavored Rockport, TX voltage odyssey." />
+  <meta name="twitter:image" content="https://rockport.superfun.games/og.jpg" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <title>FISH-O-WATTS</title>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div id="fx-scan"></div>
+  <div id="fx-flash"></div>
+  <div id="fx-fade"></div>
+
+  <!-- POWER ON -->
+  <section id="scr-tap" class="screen on">
+    <div class="tap-inner">
+      <div class="disc"><div class="disc-hole"></div></div>
+      <div class="tap-text">TAP TO POWER ON</div>
+      <div class="tap-sub">🔊 sound on for maximum voltage</div>
+    </div>
+  </section>
+
+  <!-- FAKE CONSOLE BOOT -->
+  <section id="scr-boot" class="screen">
+    <div class="boot-logo"><span class="bl-a">BAIT</span><span class="bl-b">STATION</span><sup>2</sup></div>
+    <div class="boot-sub">a fishing-based entertainment system</div>
+  </section>
+
+  <!-- MEMORY CARD -->
+  <section id="scr-mem" class="screen">
+    <div class="mem-box">
+      <div class="mem-icon"><i></i><i></i><i></i></div>
+      <div id="mem-text">Checking MEMORY CARD (8MB) in MEMORY CARD slot 1...</div>
+    </div>
+  </section>
+
+  <!-- TITLE -->
+  <section id="scr-title" class="screen">
+    <div class="logo">
+      <div class="logo-top">SHAHEEN'S</div>
+      <div class="logo-main"><span class="lm-a">FISH</span><span class="lm-b">-O-</span><span class="lm-c">WATTS</span></div>
+      <div class="logo-sub">A ROCKPORT, TX VOLTAGE ODYSSEY</div>
+    </div>
+    <div id="press-start" class="blink">PRESS START</div>
+    <nav class="menu" id="title-menu">
+      <button data-act="start">START GAME</button>
+      <button data-act="howto">HOW TO PLAY</button>
+      <button data-act="options">OPTIONS</button>
+      <button data-act="credits">CREDITS</button>
+    </nav>
+    <div class="hiscore" id="title-hi"></div>
+    <div class="copyright">© 2004 BAYRUNNER INTERACTIVE · ALL WATTS RESERVED</div>
+  </section>
+
+  <!-- HOW TO PLAY -->
+  <section id="scr-howto" class="screen panel-screen">
+    <div class="panel">
+      <div class="panel-head">HOW TO PLAY</div>
+      <div class="panel-body">
+        <div class="goal-list">
+          <div class="goal g-fish"><b>1</b><span class="gi">🎣</span><div><strong>CATCH 3 FISH</strong><small>Drive into a <em class="c-fish">BLUE BEACON</em>, hit <em>FISH</em>. Tap to cast (aim for GOLD). Tap when it bites. HOLD to keep the fish in the box.</small></div></div>
+          <div class="goal g-bolt"><b>2</b><span class="gi">⚡</span><div><strong>CHARGE THE CAR TO 80%</strong><small>Drive into a <em class="c-bolt">YELLOW BEACON</em>, hit <em>CHARGE</em>. Pick the right adapter. HOLD while the needle is in the GREEN. Red = ZAP.</small></div></div>
+          <div class="goal g-trophy"><b>3</b><span class="gi">🏆</span><div><strong>WEIGH IN BEFORE SUNSET</strong><small>The <em class="c-trophy">PINK BEACON</em> at the beach. Sunset is 7:30 PM (about 2½ minutes).</small></div></div>
+        </div>
+        <div class="controls">
+          <div><span class="key">👈 DRAG</span> left side to drive · <span class="key">WASD/↑↓←→</span></div>
+          <div><span class="key">ACTION</span> big button · <span class="key">SPACE</span></div>
+          <div><span class="key">HONK</span> does nothing · <span class="key">H</span> (probably)</div>
+          <div>🔋 0% battery? Shaheen gets out and pushes.</div>
+          <div>➜ Follow the big floating arrow. It knows the way.</div>
+        </div>
+      </div>
+      <nav class="menu"><button data-act="back">BACK</button></nav>
+    </div>
+  </section>
+
+  <!-- OPTIONS -->
+  <section id="scr-options" class="screen panel-screen">
+    <div class="panel">
+      <div class="panel-head">OPTIONS</div>
+      <nav class="menu opts" id="opt-menu">
+        <button data-act="opt-music">MUSIC <span class="ov" id="ov-music">ON</span></button>
+        <button data-act="opt-sfx">SOUND FX <span class="ov" id="ov-sfx">ON</span></button>
+        <button data-act="opt-scan">SCANLINES <span class="ov" id="ov-scan">ON</span></button>
+        <button data-act="opt-res">VIDEO MODE <span class="ov" id="ov-res">480i</span></button>
+        <button data-act="opt-vib">RUMBLE <span class="ov" id="ov-vib">ON</span></button>
+        <button data-act="opt-weird">WEIRDNESS <span class="ov" id="ov-weird">BONKERS</span></button>
+        <button data-act="back">BACK</button>
+      </nav>
+      <div class="opt-note" id="opt-note"></div>
+    </div>
+  </section>
+
+  <!-- CREDITS -->
+  <section id="scr-credits" class="screen panel-screen">
+    <div class="panel">
+      <div class="panel-head">CREDITS</div>
+      <div class="panel-body credits">
+        <p><b>SHAHEEN</b> as Shaheen</p>
+        <p><b>DALE</b> as Dale (has jumper cables)</p>
+        <p><b>GRANDMA LUPE</b> Breaker Management</p>
+        <p><b>JUDGE CLAWDIA</b> Weigh-In Adjudication</p>
+        <p><b>THE BIG TREE</b> Has Seen Things</p>
+        <p><b>K-WATT 88.1</b> Broadcasting from inside a pelican</p>
+        <p class="dim">No whooping cranes were harmed. One was briefly caught and immediately released.</p>
+        <p class="dim">Voltages depicted are not real. Please do not plug a hot dog into anything.</p>
+        <p class="dim">Built with three.js · every sound synthesized live · BAYRUNNER INTERACTIVE 2004</p>
+      </div>
+      <nav class="menu"><button data-act="back">BACK</button></nav>
+    </div>
+  </section>
+
+  <!-- STORY -->
+  <section id="scr-intro" class="screen">
+    <div class="intro-frame">
+      <div class="intro-text" id="intro-text"></div>
+      <div class="intro-hint blink">TAP ▶</div>
+    </div>
+    <button class="skip" id="intro-skip">SKIP ▶▶</button>
+  </section>
+
+  <!-- MISSION BRIEFING -->
+  <section id="scr-brief" class="screen">
+    <div class="brief">
+      <div class="brief-head">MISSION BRIEFING</div>
+      <div class="brief-sub">ROCKPORT, TX · 5:00 PM · SUNSET 7:30 PM</div>
+      <div class="bgoal g-fish"><div class="bnum">1</div><div class="bico">🎣</div><div class="btxt"><b>CATCH 3 FISH</b><small>Drive into a <em class="c-fish">BLUE</em> beacon → press <em>FISH</em></small></div></div>
+      <div class="bgoal g-bolt"><div class="bnum">2</div><div class="bico">⚡</div><div class="btxt"><b>CHARGE THE CAR TO 80%</b><small>Drive into a <em class="c-bolt">YELLOW</em> beacon → press <em>CHARGE</em></small></div></div>
+      <div class="bgoal g-trophy"><div class="bnum">3</div><div class="bico">🏆</div><div class="btxt"><b>WEIGH IN BEFORE SUNSET</b><small>The <em class="c-trophy">PINK</em> beacon on the beach</small></div></div>
+      <div class="brief-foot">➜ FOLLOW THE BIG ARROW ABOVE THE CAR</div>
+      <button class="big-btn" id="brief-go">LET'S GO!</button>
+    </div>
+  </section>
+
+  <!-- LOADING -->
+  <section id="scr-load" class="screen">
+    <div class="load-title">NOW LOADING<span class="dots"></span></div>
+    <div class="load-bar"><div id="load-fill"></div></div>
+    <div class="load-tip" id="load-tip"></div>
+    <div class="load-spin">🐟</div>
+  </section>
+
+  <!-- HUD -->
+  <section id="hud" class="screen">
+    <div class="hud-top">
+      <div class="bat" id="bat">
+        <div class="bat-ico">⚡</div>
+        <div class="bat-bar"><div class="bat-fill" id="bat-fill"></div><div class="bat-goal" id="bat-goal"><span>80</span></div></div>
+        <div class="bat-pct" id="bat-pct">12%</div>
+      </div>
+      <div class="clock">
+        <div id="clock">5:00 PM</div>
+        <div class="sunbar"><div id="sunbar-fill"></div><span>☀ 7:30</span></div>
+      </div>
+      <button id="btn-pause" class="pause" aria-label="Pause">II</button>
+    </div>
+    <div class="ticker"><span class="ticker-tag">📻 K-WATT</span><div class="ticker-win"><span id="ticker-text"></span></div></div>
+    <div class="objectives" id="objectives">
+      <div class="obj-head">OBJECTIVES</div>
+      <div class="obj" id="obj-fish"><span class="chk"></span><span class="ico">🎣</span><span class="txt">CATCH 3 FISH</span><span class="val" id="obj-fish-v">0/3</span><div class="obj-bar"><i id="obj-fish-b"></i></div></div>
+      <div class="obj" id="obj-charge"><span class="chk"></span><span class="ico">⚡</span><span class="txt">CHARGE TO 80%</span><span class="val" id="obj-charge-v">12%</span><div class="obj-bar"><i id="obj-charge-b"></i></div></div>
+      <div class="obj" id="obj-weigh"><span class="chk"></span><span class="ico">🏆</span><span class="txt">WEIGH IN</span><span class="val" id="obj-weigh-v">7:30</span></div>
+    </div>
+    <canvas id="minimap" width="160" height="160"></canvas>
+    <div class="next" id="next"><span class="next-l">NEXT</span><span id="next-txt"></span></div>
+    <div id="joyzone"></div>
+    <div id="joybase"><div id="joyknob"></div></div>
+    <div class="btns">
+      <button id="btn-honk" class="honk">📯<small>HONK</small></button>
+      <button id="btn-act" class="act off"><span id="act-ico">·</span><span id="act-txt">DRIVE</span></button>
+    </div>
+    <div class="drive-hint" id="drive-hint">👆 DRAG ON THE LEFT SIDE TO DRIVE</div>
+    <div id="push-banner" class="push-banner">🔋 0% · SHAHEEN IS PUSHING THE CAR</div>
+  </section>
+
+  <!-- FISHING -->
+  <section id="fishui" class="screen">
+    <div class="mg-top">
+      <div class="mg-head"><span class="mg-ico">🎣</span><span id="fi-spot">SPOT</span></div>
+      <div class="mg-goal" id="fi-goal">🎣 FISH 0/3</div>
+    </div>
+    <div class="mg-prompt" id="fi-prompt">TAP TO CAST!</div>
+    <div class="mg-sub" id="fi-sub"></div>
+    <div class="power" id="fi-power">
+      <div class="power-zones"><i class="pz-weak">WEAK</i><i class="pz-ok">OK</i><i class="pz-gold">GOLD</i></div>
+      <div class="power-mark" id="fi-mark"></div>
+    </div>
+    <div class="reel" id="fi-reel">
+      <div class="reel-track"><div class="reel-zone" id="fi-zone"></div><div class="reel-fish" id="fi-fish">🐟</div></div>
+      <div class="reel-prog"><div id="fi-prog"></div></div>
+    </div>
+    <div class="bang" id="fi-bang">!</div>
+    <div class="tapzone" id="fi-tap"></div>
+    <button class="mg-exit" id="fi-exit">✕ LEAVE</button>
+  </section>
+
+  <!-- CHARGING -->
+  <section id="chargeui" class="screen">
+    <div class="sheet">
+      <div class="mg-top">
+        <div class="mg-head"><span class="mg-ico">⚡</span><span id="ch-name">CHARGER</span></div>
+        <div class="mg-goal" id="ch-goal">⚡ 12% / 80%</div>
+      </div>
+      <div class="ch-spec"><b id="ch-volts"></b> · PLUG: <b id="ch-plug"></b></div>
+      <div class="ch-quote" id="ch-quote"></div>
+      <div id="ch-step-adapt" class="ch-step">
+        <div class="ch-ask">STEP 1: PICK THE ADAPTER THAT FITS <b id="ch-plug2"></b></div>
+        <div class="ch-adapters" id="ch-adapters"></div>
+      </div>
+      <div id="ch-step-boot" class="ch-step">
+        <div class="ch-err">ERROR 0xF15H:<br />HANDSHAKE FAILED</div>
+        <button id="ch-reboot" class="big-btn">👊 SMACK IT</button>
+      </div>
+      <div id="ch-step-gauge" class="ch-step">
+        <div class="ch-ask">STEP 2: <b>HOLD</b> WHILE THE NEEDLE IS IN THE <b class="c-green">GREEN</b></div>
+        <div class="gauge-wrap"><canvas id="ch-gauge" width="300" height="160"></canvas><div class="ch-read" id="ch-read">0.0 V</div></div>
+        <div class="ch-status" id="ch-status"></div>
+        <div class="ch-pat"><span>BREAKER PATIENCE</span><div class="ch-pat-bar"><div id="ch-pat"></div></div></div>
+        <div class="ch-btns"><button id="ch-exit" class="small-btn">UNPLUG</button><button id="ch-hold" class="hold-btn">⚡ HOLD</button></div>
+      </div>
+      <div id="ch-step-dale" class="ch-step">
+        <div class="dale-text" id="dale-text"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATCH CARD -->
+  <section id="card" class="screen">
+    <div class="card-box">
+      <div class="card-ttl" id="card-ttl">NEW CATCH!</div>
+      <div class="card-name" id="card-name"></div>
+      <div class="card-stars" id="card-stars"></div>
+      <div class="card-lbs" id="card-lbs"></div>
+      <div class="card-desc" id="card-desc"></div>
+      <div class="card-fx" id="card-fx"></div>
+      <div class="card-goal" id="card-goal"></div>
+      <div class="card-btns"><button id="card-leave" class="small-btn">DRIVE ON</button><button id="card-again" class="big-btn">CAST AGAIN</button></div>
+    </div>
+  </section>
+
+  <!-- PAUSE -->
+  <section id="scr-pause" class="screen panel-screen">
+    <div class="panel">
+      <div class="panel-head">PAUSED</div>
+      <div class="panel-body" id="pause-goals"></div>
+      <nav class="menu" id="pause-menu">
+        <button data-act="resume">RESUME</button>
+        <button data-act="restart">RESTART</button>
+        <button data-act="quit">QUIT TO TITLE</button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="scr-results" class="screen">
+    <div class="res">
+      <div class="res-head">WEIGH-IN RESULTS</div>
+      <div class="res-sub" id="res-sub"></div>
+      <div class="res-goals" id="res-goals"></div>
+      <div class="res-list" id="res-list"></div>
+      <div class="res-total"><span>TOTAL FISH-O-WATTS</span><b id="res-total">0</b></div>
+      <div class="res-rank" id="res-rank"></div>
+      <div class="res-judge" id="res-judge"></div>
+      <nav class="menu row" id="res-menu">
+        <button data-act="save">💾 SAVE</button>
+        <button data-act="again">PLAY AGAIN</button>
+        <button data-act="title">TITLE</button>
+      </nav>
+    </div>
+  </section>
+
+  <div id="toast"></div>
+  <div id="banner"><div class="banner-in"><small id="banner-sm"></small><b id="banner-big"></b></div></div>
+  <div id="rotate-hint"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
