@@ -121,6 +121,9 @@ export class Game {
     };
     this.gctx = this.ui.gauge.getContext('2d');
     this.mctx = this.ui.minimap.getContext('2d');
+    // which how-to cards this device has already seen
+    try { this.seen = { fish: false, charge: false, ...JSON.parse(localStorage.getItem('fow-tut') || '{}') }; }
+    catch { this.seen = { fish: false, charge: false }; }
     this.bindUI();
     this.reset();
   }
@@ -155,9 +158,16 @@ export class Game {
     u.cardAgain.addEventListener('click', () => this.cardContinue(true));
     u.cardLeave.addEventListener('click', () => this.cardContinue(false));
 
+    // first-time how-to cards
+    $('tut-go').addEventListener('click', () => this.closeTutorial());
+    $('fi-help').addEventListener('click', (e) => { e.stopPropagation(); if (this.mode === 'fish') this.showTutorial('fish'); });
+    $('fi-help').addEventListener('pointerdown', (e) => e.stopPropagation());
+    $('ch-help').addEventListener('click', () => { if (this.mode === 'charge') this.showTutorial('charge'); });
+
     // keyboard holds for minigames
     window.addEventListener('keydown', (e) => {
       if (e.repeat || !input.enabled) return;
+      if (this.tutorial) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); this.closeTutorial(); } return; }
       if (e.key === ' ' || e.key === 'Enter') {
         if (this.mode === 'fish') this.fishPress(true);
         if (this.mode === 'charge' && this.ch?.step === 'gauge') hdown(e);
@@ -224,6 +234,9 @@ export class Game {
     setJoyDemo(true);
     this.unstick = 0;
     this.stuckT = 0;
+    this.charges = 0;
+    this.tutorial = null;
+    $('tut').className = 'screen';
     this.ui.ticker.textContent = '';
     this.world.cranes.forEach((c) => { c.parade = null; c.fly = 0; c.m.position.set(c.home[0], 0.5, c.home[1]); });
     this.world.setFogTint(null, 0);
@@ -238,6 +251,7 @@ export class Game {
 
   // ------------------------------------------------------------ main update
   update(dt) {
+    if (this.tutorial) { this.updateCamera(dt); return; } // clock paused while reading
     const playing = this.mode === 'drive' || this.mode === 'fish' || this.mode === 'charge';
     if (playing) {
       this.clock += dt;
@@ -777,6 +791,33 @@ export class Game {
     this.ui.fiSpot.textContent = spot.name;
     this.setFishGoalChip();
     this.toCast();
+    if (!this.seen.fish) this.showTutorial('fish');
+  }
+
+  // ------------------------------------------------------------ HOW-TO CARDS
+  showTutorial(kind) {
+    this.tutorial = kind;
+    this.fishHeld = false;
+    this.chHeld = false;
+    this.ui.chHold.classList.remove('held');
+    audio.setHum(0);
+    audio.whoosh();
+    const fish = kind === 'fish';
+    $('tut').className = `screen on ${fish ? 'k-fish' : 'k-bolt'}`;
+    $('tut-ico').textContent = fish ? '🎣' : '⚡';
+    $('tut-title').textContent = fish ? 'HOW TO FISH' : 'HOW TO CHARGE';
+    $('tut-fish').classList.toggle('on', fish);
+    $('tut-charge').classList.toggle('on', !fish);
+    $('tut-go').textContent = fish ? 'GOT IT · LET\'S FISH!' : 'GOT IT · PLUG IN!';
+  }
+
+  closeTutorial() {
+    if (!this.tutorial) return;
+    this.seen[this.tutorial] = true;
+    try { localStorage.setItem('fow-tut', JSON.stringify(this.seen)); } catch { /* private mode */ }
+    this.tutorial = null;
+    $('tut').className = 'screen';
+    audio.select();
   }
 
   setFishGoalChip() {
@@ -800,7 +841,7 @@ export class Game {
   }
 
   fishPress(down) {
-    if (this.mode !== 'fish' || !this.fish) return;
+    if (this.mode !== 'fish' || !this.fish || this.tutorial) return;
     const f = this.fish;
     this.fishHeld = down;
     if (!down) return;
@@ -845,7 +886,8 @@ export class Game {
     f.def = FISH[f.key];
     f.phase = 'reel';
     f.t = 0;
-    const diff = f.def.diff;
+    // the very first fish of the game reels easy, whatever it is
+    const diff = (f.d = this.cooler.length === 0 ? Math.min(2, f.def.diff) : f.def.diff);
     f.zone = 0.1;
     f.zv = 0;
     f.zs = 0.36 - diff * 0.032;
@@ -869,7 +911,7 @@ export class Game {
     f.t += dt;
     const u = this.ui;
     if (f.phase === 'cast') {
-      f.mark += f.mdir * dt * 1.35;
+      f.mark += f.mdir * dt * (this.cooler.length === 0 ? 1.0 : 1.35);
       if (f.mark >= 1) { f.mark = 1; f.mdir = -1; }
       if (f.mark <= 0) { f.mark = 0; f.mdir = 1; }
       u.fiMark.style.left = `${f.mark * 100}%`;
@@ -908,7 +950,7 @@ export class Game {
         this.lostFish('IT GOT AWAY.', 'Tap faster when you see the "!"');
       }
     } else if (f.phase === 'reel') {
-      const d = f.def.diff;
+      const d = f.d;
       // player box
       f.zv += (this.fishHeld ? 2.9 : -2.5) * dt;
       f.zv = clamp(f.zv, -1.4, 1.4);
@@ -1088,7 +1130,7 @@ export class Game {
     audio.select();
     resetStick();
     const u = this.ui;
-    this.ch = { def: ch, step: 'adapt', t: 0, v: 0.5, disp: 0.5, st: {}, out: 0, immune: 0, sessionZaps: 0, patience: ch.patience || 3, gained: 0 };
+    this.ch = { def: ch, step: 'adapt', t: 0, v: 0.5, disp: 0.5, st: {}, out: 0, immune: 0, sessionZaps: 0, patience: ch.patience || 3, gained: 0, easy: this.charges === 0 };
     this.chHeld = false;
     u.hud.classList.add('mini');
     u.chargeui.classList.add('on');
@@ -1137,6 +1179,7 @@ export class Game {
       u.chAdapters.appendChild(btn);
     }
     u.chAdapt.classList.add('on');
+    if (!this.seen.charge) this.showTutorial('charge');
   }
 
   setChargeGoalChip() {
@@ -1144,7 +1187,7 @@ export class Game {
   }
 
   pickAdapter(o, btn) {
-    if (this.mode !== 'charge' || this.ch.step !== 'adapt') return;
+    if (this.mode !== 'charge' || this.ch.step !== 'adapt' || this.tutorial) return;
     const u = this.ui;
     if (o.ok) {
       audio.select();
@@ -1169,7 +1212,7 @@ export class Game {
   }
 
   smack() {
-    if (this.ch?.step !== 'boot') return;
+    if (this.ch?.step !== 'boot' || this.tutorial) return;
     audio.bump();
     this.shake = 0.3;
     if (Math.random() < 0.6) {
@@ -1186,7 +1229,7 @@ export class Game {
     const ch = this.ch;
     ch.step = 'gauge';
     ch.t = 0;
-    ch.immune = 0.7;
+    ch.immune = ch.easy ? 1.2 : 0.7;
     this.ui.chGauge.classList.add('on');
     this.ui.chStatus.textContent = 'HOLD ⚡ WHEN THE NEEDLE IS GREEN';
     this.ui.chStatus.className = 'ch-status';
@@ -1272,7 +1315,7 @@ export class Game {
         ch.out += dt;
         u.chStatus.textContent = 'LET GO!! RED = ZAP!';
         u.chStatus.className = 'ch-status bad';
-        if (ch.out > 0.16 && ch.immune <= 0) {
+        if (ch.out > (ch.easy ? 0.35 : 0.16) && ch.immune <= 0) {
           ch.out = 0;
           ch.immune = 0.9;
           ch.sessionZaps++;
@@ -1286,6 +1329,8 @@ export class Game {
       u.chStatus.textContent = inGreen ? 'GREEN! HOLD ⚡ NOW!' : 'WAIT FOR GREEN...';
       u.chStatus.className = inGreen ? 'ch-status good' : 'ch-status';
     }
+    u.chHold.classList.toggle('go', inGreen && !this.chHeld);
+    u.chHold.classList.toggle('stop', !inGreen && this.chHeld);
     ch.patience -= dt;
     u.chPat.style.width = `${clamp(ch.patience / ch.def.patience, 0, 1) * 100}%`;
     this.drawGauge(ch.disp, ch.def, inGreen);
@@ -1395,6 +1440,8 @@ export class Game {
     if (this.mode !== 'charge') return;
     const ch = this.ch;
     this.chState.get(ch.def.id).cool = cool;
+    if (ch.step === 'gauge') this.charges++;
+    this.ui.chHold.classList.remove('go', 'stop');
     audio.setHum(0);
     this.chHeld = false;
     this.ui.chHold.classList.remove('held');

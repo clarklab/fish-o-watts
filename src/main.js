@@ -197,7 +197,7 @@ resize();
 // ------------------------------------------------------------------ screens
 let state = 'tap';
 let paused = false;
-const SCREENS = ['scr-tap', 'scr-boot', 'scr-mem', 'scr-title', 'scr-howto', 'scr-options', 'scr-credits', 'scr-intro', 'scr-brief', 'scr-load', 'hud', 'scr-pause', 'scr-results', 'fishui', 'chargeui', 'card'];
+const SCREENS = ['scr-tap', 'scr-boot', 'scr-mem', 'scr-title', 'scr-howto', 'scr-options', 'scr-credits', 'scr-intro', 'scr-brief', 'scr-load', 'hud', 'scr-pause', 'scr-results', 'fishui', 'chargeui', 'card', 'tut'];
 function show(...ids) {
   for (const id of SCREENS) $(id).classList.toggle('on', ids.includes(id));
   menuSel = 0;

@@ -591,3 +591,106 @@ em { font-style: normal; color: #fff; }
   #minimap { width: 140px; height: 140px; }
   .ticker { left: 50%; transform: translateX(-50%); width: 560px; }
 }
+
+/* ------------------------------------------------------------ FIRST-TIME HOW-TO */
+.mg-help {
+  flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%; font-size: 15px; line-height: 1;
+  background: rgba(255, 255, 255, 0.15); border: 2px solid rgba(255, 255, 255, 0.6);
+}
+.mg-help:active { transform: scale(0.9); }
+#fishui .mg-help { pointer-events: auto; }
+
+#tut { background: rgba(2, 0, 16, 0.78); z-index: 30; }
+#tut.on { display: grid; place-items: center; }
+.tut-box {
+  width: min(94vw, 460px); max-height: calc(100dvh - 24px); overflow: auto; padding: 0 14px 14px; text-align: center; touch-action: pan-y;
+  background: linear-gradient(180deg, rgba(22, 32, 100, 0.97), rgba(8, 10, 44, 0.98)); border: 3px solid var(--fish); border-radius: 10px;
+  box-shadow: 0 0 30px rgba(51, 204, 255, 0.5); animation: cardin 0.35s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+#tut.k-bolt .tut-box { border-color: var(--bolt); box-shadow: 0 0 30px rgba(255, 224, 42, 0.45); }
+.tut-head {
+  margin: 0 -14px 10px; padding: 10px; font-family: var(--logo); font-size: clamp(20px, 6.5vw, 30px); color: #fff;
+  background: linear-gradient(90deg, #0070c0, #33ccff, #0070c0); text-shadow: 3px 3px 0 #002a5a; display: flex; gap: 10px; justify-content: center; align-items: center;
+}
+#tut.k-bolt .tut-head { background: linear-gradient(90deg, #b07000, #ffe02a, #b07000); color: #2a1a00; text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.5); }
+.tut-steps { display: none; gap: 8px; text-align: left; }
+.tut-steps.on { display: grid; }
+.tstep { display: grid; grid-template-columns: 26px 96px 1fr; gap: 10px; align-items: center; padding: 8px; border-radius: 6px; background: rgba(0, 0, 0, 0.4); }
+.tnum { font-size: 24px; text-align: center; color: var(--yellow); }
+.tdemo { height: 60px; display: grid; place-items: center; border-radius: 6px; background: rgba(0, 20, 60, 0.6); overflow: hidden; }
+.ttxt b { display: block; font-size: 15px; letter-spacing: 1px; color: #fff; }
+.ttxt small { display: block; font-size: 12.5px; line-height: 1.35; opacity: 0.92; font-family: system-ui, sans-serif; font-weight: 700; }
+.ttxt em { color: #fff; text-decoration: underline; text-decoration-thickness: 2px; }
+em.t-gold { color: #ffd23a; } em.t-green { color: var(--green); } em.t-red { color: var(--red); }
+.tut-foot { margin: 10px 0; font-size: 11px; letter-spacing: 1px; opacity: 0.75; }
+#tut-go { width: 100%; }
+#tut.k-bolt #tut-go { background: radial-gradient(circle at 40% 30%, #fff, #ffe85a 35%, #d09000); color: #2a1a00; text-shadow: none; box-shadow: 0 4px 0 #5a3a00, 0 0 20px rgba(255, 224, 42, 0.6); }
+
+/* mini demos */
+.mini-power { position: relative; width: 84px; height: 18px; display: flex; border: 2px solid #fff; border-radius: 4px; }
+.mini-power i:nth-child(1) { flex: 35; background: #c03030; }
+.mini-power i:nth-child(2) { flex: 47; background: #20a050; }
+.mini-power i:nth-child(3) { flex: 18; background: #ffb800; }
+.mini-power b { position: absolute; top: -6px; bottom: -6px; width: 5px; margin-left: -2px; background: #fff; border: 1px solid #000; animation: minislide 1.6s ease-in-out infinite; }
+@keyframes minislide { 0% { left: 0; } 70% { left: 92%; } 78%, 100% { left: 92%; } }
+.mini-bang { font-family: var(--logo); font-size: 44px; color: var(--yellow); text-shadow: 3px 3px 0 #a00000; animation: minibang 1.2s ease-in-out infinite; }
+@keyframes minibang { 0%, 12% { transform: scale(0.2); opacity: 0.3; } 22% { transform: scale(1.35); opacity: 1; } 32%, 100% { transform: scale(1); } }
+.mini-reel { position: relative; width: 26px; height: 52px; border: 2px solid #fff; border-radius: 5px; background: #022040; }
+.mini-reel .mz { position: absolute; left: 2px; right: 2px; height: 20px; background: rgba(61, 255, 122, 0.5); border: 2px solid var(--green); border-radius: 3px; animation: minizone 2s ease-in-out infinite; }
+.mini-reel .mf { position: absolute; left: 50%; font-size: 13px; transform: translateX(-50%) scaleX(-1); animation: minifish 2s ease-in-out infinite; }
+@keyframes minizone { 0%, 100% { bottom: 2px; } 50% { bottom: 26px; } }
+@keyframes minifish { 0%, 100% { bottom: 5px; } 50% { bottom: 30px; } }
+.mini-match { display: grid; gap: 1px; justify-items: center; font-size: 8.5px; letter-spacing: 0.3px; }
+.mini-match span:first-child { padding: 1px 4px; background: #000; color: var(--yellow); border-radius: 3px; }
+.mini-match .mm-arrow { color: var(--yellow); font-size: 9px; animation: blink 0.8s steps(2) infinite; }
+.mini-match .mm-ok { white-space: nowrap; padding: 2px 4px; border: 1px solid var(--green); color: var(--green); border-radius: 3px; background: rgba(61, 255, 122, 0.15); }
+.mini-gauge {
+  position: relative; width: 80px; height: 40px; border-radius: 80px 80px 0 0; overflow: hidden; margin-top: 16px;
+  background: conic-gradient(from 270deg at 50% 100%, #c0203a 0deg 65deg, #3dff7a 65deg 115deg, #c0203a 115deg 180deg, transparent 180deg);
+}
+.mini-gauge::after { content: ''; position: absolute; left: 14px; right: 14px; top: 14px; bottom: -26px; border-radius: 50%; background: #0a1a3a; }
+.mg-needle { position: absolute; left: 50%; bottom: 0; width: 3px; height: 36px; margin-left: -1.5px; background: #fff; transform-origin: 50% 100%; z-index: 1; animation: mininiddle 2.2s ease-in-out infinite; }
+@keyframes mininiddle { 0%, 100% { transform: rotate(-12deg); } 35% { transform: rotate(14deg); } 60% { transform: rotate(62deg); } 80% { transform: rotate(-58deg); } }
+.mini-pat { width: 80px; height: 8px; border-radius: 4px; background: #222; overflow: hidden; }
+.mini-pat i { display: block; height: 100%; background: linear-gradient(90deg, #ff3355, #ffe02a, #3dff7a); animation: minipat 3s linear infinite; }
+@keyframes minipat { from { width: 100%; } to { width: 0; } }
+
+/* the hold button tells you when to press and when to let go */
+@media (orientation: landscape) and (max-height: 520px) {
+  .tut-box { width: min(96vw, 860px); padding-bottom: 10px; }
+  .tut-head { padding: 5px; margin-bottom: 8px; font-size: 22px; }
+  .tut-steps.on { grid-template-columns: repeat(3, 1fr); }
+  .tstep { position: relative; grid-template-columns: 1fr; gap: 6px; text-align: center; }
+  .tnum { position: absolute; left: 8px; top: 4px; font-size: 18px; }
+  .tdemo { height: 50px; }
+  .ttxt small { font-size: 11.5px; }
+  .tut-foot { margin: 6px 0; }
+  #tut-go { padding: 10px; font-size: 17px; }
+}
+
+.hold-btn.go { animation: holdgo 0.45s ease-in-out infinite; }
+@keyframes holdgo { 50% { transform: scale(1.04); box-shadow: 0 5px 0 #5a3a00, 0 0 36px rgba(61, 255, 122, 0.95); } }
+.hold-btn.stop { background: radial-gradient(circle at 40% 30%, #fff, #ff8a9a 35%, #c0203a); color: #fff; box-shadow: 0 5px 0 #5a0010, 0 0 30px rgba(255, 51, 85, 0.9); }
+
+/* landscape phones: the charging panel must fit 390px of height with HOLD on screen */
+@media (orientation: landscape) and (max-height: 520px) {
+  .sheet { width: min(480px, 56vw); padding: 8px 10px 10px; bottom: auto; max-height: calc(100dvh - 60px - var(--sat)); }
+  .ch-spec { margin: 4px 0 0; }
+  .ch-quote { font-size: 11px; margin: 2px 0 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .sheet:has(#ch-step-gauge.on) .ch-quote { display: none; }
+  .ch-ask { margin: 2px 0 6px; font-size: 12px; }
+  .ch-adapters { gap: 5px; }
+  .ch-adapters button { padding: 6px 10px; font-size: 13px; }
+  .ch-adapters .ai { width: 28px; height: 28px; font-size: 15px; }
+  #ch-step-gauge.on {
+    display: grid; grid-template-columns: 1.15fr 1fr; column-gap: 10px; align-items: center;
+    grid-template-areas: "ask ask" "gauge status" "gauge pat" "gauge btns";
+  }
+  #ch-step-gauge .ch-ask { grid-area: ask; }
+  #ch-step-gauge .gauge-wrap { grid-area: gauge; }
+  #ch-step-gauge .ch-status { grid-area: status; font-size: 13px; margin: 0; }
+  #ch-step-gauge .ch-pat { grid-area: pat; margin: 0; }
+  #ch-step-gauge .ch-btns { grid-area: btns; flex-direction: column-reverse; gap: 6px; }
+  .hold-btn { padding: 14px 8px; font-size: 20px; }
+  #ch-step-gauge .small-btn { padding: 6px; font-size: 12px; }
+}
