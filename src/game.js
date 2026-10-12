@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { audio } from './audio.js';
-import { input, readStick, resetStick } from './input.js';
+import { input, readStick, resetStick, setJoyDemo } from './input.js';
 import { isDrivable, surfaceY, onRoad, WEIGH_IN, START, isTerrainLand } from './world.js';
 import { makeCar, makeShaheen } from './models.js';
 import { make } from './builder.js';
@@ -20,7 +20,7 @@ const pickW = (table) => {
   for (const [k, w] of entries) { if ((r -= w) <= 0) return k; }
   return entries[0][0];
 };
-const RADIUS = 9;
+const RADIUS = 10.5;
 // Spots on piers/bridges are only reachable from one end: the guide arrow routes through the on-ramp first.
 const ROUTES = {
   causeway: { box: [-30, -10, -212, -106], via: [-20, -108] },
@@ -218,8 +218,12 @@ export class Game {
     this.ui.chargeui.classList.remove('on');
     this.ui.card.classList.remove('on');
     this.ui.hud.classList.remove('mini');
-    this.ui.driveHint.textContent = matchMedia('(pointer: coarse)').matches ? '👆 DRAG ON THE LEFT SIDE TO DRIVE' : '⌨ WASD / ARROW KEYS TO DRIVE · SPACE = ACTION';
-    this.ui.driveHint.classList.add('on');
+    // touch players get the animated ghost stick; keyboard players get a text hint
+    this.ui.driveHint.textContent = '⌨ WASD / ARROW KEYS TO DRIVE · SPACE = ACTION';
+    this.ui.driveHint.classList.toggle('on', !matchMedia('(pointer: coarse)').matches);
+    setJoyDemo(true);
+    this.unstick = 0;
+    this.stuckT = 0;
     this.ui.ticker.textContent = '';
     this.world.cranes.forEach((c) => { c.parade = null; c.fly = 0; c.m.position.set(c.home[0], 0.5, c.home[1]); });
     this.world.setFogTint(null, 0);
@@ -229,7 +233,7 @@ export class Game {
 
   begin() {
     this.hooks.banner('YOUR GOALS', '🎣 CATCH 3 FISH · ⚡ CHARGE TO 80%', 'blue', 3200);
-    setTimeout(() => { if (this.mode === 'drive' && this.clock < 8) this.hooks.toast('FOLLOW THE ARROW ➜', 'small'); }, 3400);
+    setTimeout(() => { if (this.mode === 'drive' && this.clock < 8) this.hooks.toast('FOLLOW THE BIG ARROW', 'small'); }, 3400);
   }
 
   // ------------------------------------------------------------ main update
@@ -271,20 +275,36 @@ export class Game {
     const st = readStick();
     const pushing = this.battery <= 0;
     const road = onRoad(c.x, c.z);
-    const maxSp = pushing ? 6.5 : road ? 30 : 22;
+    const maxSp = pushing ? 6.5 : road ? 28 : 21;
     let diff = 0;
-    if (st.m > 0.18) {
-      if (!this.moved) { this.moved = true; this.ui.driveHint.classList.remove('on'); }
-      const target = Math.atan2(st.x, -st.y);
+    if (this.unstick > 0) {
+      // auto-unstick: back off whatever we're wedged against and swing toward the stick
+      this.unstick -= dt;
+      c.speed = -7;
+      if (st.m > 0.12) c.h = wrap(c.h + clamp(wrap(Math.atan2(st.x, -st.y) - c.h), -2.5 * dt, 2.5 * dt));
+    } else if (st.m > 0.12) {
+      if (!this.moved) { this.moved = true; this.ui.driveHint.classList.remove('on'); setJoyDemo(false); }
+      let target = Math.atan2(st.x, -st.y);
+      if (!pushing) target = this.assistHeading(target);
       diff = wrap(target - c.h);
-      const turn = (pushing ? 2.2 : 3.4) * (0.4 + 0.6 * Math.min(1, Math.abs(c.speed) / 10));
+      // pivots fast when slow, still snappy at speed
+      const turn = pushing ? 2.6 : 5.4 - 1.8 * Math.min(1, Math.abs(c.speed) / 14);
       c.h = wrap(c.h + clamp(diff, -turn * dt, turn * dt));
       const align = Math.cos(diff);
-      const want = maxSp * st.m * (align > 0 ? 0.35 + 0.65 * align : 0.3);
-      c.speed += clamp(want - c.speed, -45 * dt, (pushing ? 8 : 26) * dt);
+      // pointing way off? ease off and swing around instead of carving a huge arc
+      const want = maxSp * Math.min(1, st.m * 1.15) * (align > 0.2 ? 0.45 + 0.55 * align : 0.18);
+      c.speed += clamp(want - c.speed, -50 * dt, (pushing ? 8 : 32) * dt);
+      if (Math.abs(c.speed) < 1.5 && st.m > 0.5) {
+        this.stuckT += dt;
+        if (this.stuckT > 0.55) { this.stuckT = 0; this.unstick = 0.45; }
+      } else this.stuckT = 0;
     } else {
-      c.speed -= Math.sign(c.speed) * Math.min(Math.abs(c.speed), 22 * dt);
+      this.stuckT = 0;
+      c.speed -= Math.sign(c.speed) * Math.min(Math.abs(c.speed), 24 * dt);
     }
+    // arrival assist: brake inside the beacon you're heading for so you actually stop in the ring
+    const tgt = this.target;
+    if (tgt && c.speed > 7 && Math.hypot(tgt.loc.pos[0] - c.x, tgt.loc.pos[1] - c.z) < RADIUS - 2) c.speed -= (c.speed - 7) * Math.min(1, dt * 6);
     c.steer += (clamp(diff, -0.6, 0.6) - c.steer) * Math.min(1, dt * 10);
     if (this.wind > 0) { this.wind -= dt; const nx = c.x - 7 * dt; if (isDrivable(nx, c.z)) c.x = nx; }
     this.moveCar(dt);
@@ -322,6 +342,36 @@ export class Game {
     this.updateActionButton();
   }
 
+  // Steering assists for first-timers. Pointing roughly at the guide arrow snaps onto
+  // its route; a blocked path ahead (house, tree, water) bends toward the nearest clear heading.
+  assistHeading(target) {
+    const c = this.car;
+    const t = this.target;
+    if (t?.aim && Math.hypot(t.aim[0] - c.x, t.aim[1] - c.z) > 4) {
+      const dd = wrap(Math.atan2(t.aim[0] - c.x, -(t.aim[1] - c.z)) - target);
+      if (Math.abs(dd) < 0.55) target += dd * 0.75;
+    }
+    if (this.nearby) return target; // parked at a beacon: let the player position freely
+    const look = 4 + Math.abs(c.speed) * 0.25;
+    const clear = (h) => {
+      const sx = Math.sin(h), sz = -Math.cos(h);
+      for (const d of [look * 0.5, look]) {
+        const x = c.x + sx * d, z = c.z + sz * d;
+        if (!isDrivable(x, z) || this.world.colliders.hits(x, z, 1.4)) return false;
+      }
+      return true;
+    };
+    if (clear(target)) return target;
+    for (const off of [0.3, 0.6, 0.9, 1.25]) {
+      const a = target + off, b = target - off;
+      const ca = clear(a), cb = clear(b);
+      if (ca && cb) return Math.abs(wrap(a - c.h)) <= Math.abs(wrap(b - c.h)) ? a : b;
+      if (ca) return a;
+      if (cb) return b;
+    }
+    return target;
+  }
+
   moveCar(dt) {
     const c = this.car;
     const fx = Math.sin(c.h), fz = -Math.cos(c.h);
@@ -341,8 +391,8 @@ export class Game {
     }
     const p = { x: c.x, z: c.z };
     if (this.world.colliders.resolve(p, 1.9)) {
-      if (Math.abs(c.speed) > 10) { audio.bump(); this.shake = 0.35; }
-      c.speed *= 0.7;
+      if (Math.abs(c.speed) > 12) { audio.bump(); this.shake = 0.3; }
+      c.speed *= 0.85;
       if (isDrivable(p.x, p.z)) { c.x = p.x; c.z = p.z; }
     }
     // a crane in the road? it leaves. loudly.

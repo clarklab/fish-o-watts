@@ -331,7 +331,7 @@ em { font-style: normal; color: #fff; }
 }
 
 .next {
-  position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(132px + var(--sab));
+  position: absolute; left: 50%; transform: translateX(-50%); top: calc(186px + var(--sat));
   max-width: 92vw; padding: 6px 12px; border-radius: 20px; background: rgba(0, 0, 30, 0.78); border: 2px solid var(--yellow);
   font-size: 13px; white-space: nowrap; display: flex; gap: 8px; align-items: center; box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
 }
@@ -343,12 +343,30 @@ em { font-style: normal; color: #fff; }
 #hud.mini .objectives, #hud.mini #minimap, #hud.mini .ticker, #hud.mini .next, #hud.mini .btns,
 #hud.mini #joyzone, #hud.mini #joybase, #hud.mini .drive-hint, #hud.mini .push-banner { display: none !important; }
 
-#joyzone { position: absolute; left: 0; top: calc(180px + var(--sat)); bottom: 0; width: 62%; touch-action: none; }
+/* drag anywhere below the top bar to steer; buttons and the top bar sit above it */
+#joyzone { position: absolute; left: 0; right: 0; top: calc(50px + var(--sat)); bottom: 0; touch-action: none; z-index: 1; }
+.hud-top, .btns { z-index: 3; }
 #joybase {
-  position: absolute; width: 112px; height: 112px; margin: -56px 0 0 -56px; border-radius: 50%; display: none; pointer-events: none;
-  background: radial-gradient(circle, rgba(127, 243, 255, 0.12), rgba(127, 243, 255, 0.04)); border: 3px solid rgba(127, 243, 255, 0.55);
+  position: absolute; width: 112px; height: 112px; margin: -56px 0 0 -56px; border-radius: 50%; display: none; pointer-events: none; z-index: 2;
+  background: radial-gradient(circle, rgba(127, 243, 255, 0.16), rgba(127, 243, 255, 0.05)); border: 3px solid rgba(127, 243, 255, 0.6);
 }
-#joybase.on { display: block; }
+#joybase.on, #joybase.rest { display: block; }
+#joybase.rest { opacity: 0.55; }
+#joybase.demo { opacity: 1; animation: joyring 1.4s ease-out infinite; }
+#joybase.demo #joyknob { animation: joydemo 2.4s ease-in-out infinite; }
+.joylabel {
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 8px; white-space: nowrap; display: none;
+  font-size: 13px; letter-spacing: 1px; color: var(--cyan); text-shadow: 2px 2px 0 #000;
+}
+#joybase.demo .joylabel { display: block; animation: blink 1.2s steps(2) infinite; }
+@keyframes joyring { from { box-shadow: 0 0 0 0 rgba(127, 243, 255, 0.6); } to { box-shadow: 0 0 0 28px rgba(127, 243, 255, 0); } }
+@keyframes joydemo {
+  0%, 100% { transform: translate(-50%, -50%); }
+  25% { transform: translate(-50%, calc(-50% - 34px)); }
+  50% { transform: translate(calc(-50% + 34px), -50%); }
+  75% { transform: translate(calc(-50% - 34px), -50%); }
+}
+@media (hover: hover) and (pointer: fine) { #joybase.rest { display: none; } }
 #joyknob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; border-radius: 50%; transform: translate(-50%, -50%); background: radial-gradient(circle at 35% 35%, #fff, #7ff3ff 40%, #2a7fff); box-shadow: 0 0 14px rgba(127, 243, 255, 0.7); }
 
 .btns { position: absolute; right: calc(14px + var(--sar)); bottom: calc(20px + var(--sab)); display: flex; align-items: flex-end; gap: 12px; }
@@ -361,8 +379,12 @@ em { font-style: normal; color: #fff; }
 #act-ico { font-size: 28px; line-height: 1; }
 .act.k-fish { background: radial-gradient(circle at 40% 30%, #fff, #66ddff 30%, #0070c0); box-shadow: 0 5px 0 #003a6a, 0 0 24px rgba(51, 204, 255, 0.9); }
 .act.k-bolt { background: radial-gradient(circle at 40% 30%, #fff, #ffe85a 30%, #d09000); box-shadow: 0 5px 0 #5a3a00, 0 0 24px rgba(255, 224, 42, 0.9); color: #2a1a00; text-shadow: none; }
-.act.off { animation: none; background: rgba(40, 40, 70, 0.6); border-color: rgba(255, 255, 255, 0.3); box-shadow: none; color: rgba(255, 255, 255, 0.45); text-shadow: none; }
-.act.cool { animation: none; background: rgba(60, 60, 90, 0.75); border-color: rgba(255, 255, 255, 0.4); box-shadow: none; color: #aaa; }
+/* idle = hidden: it only exists at a beacon, so nobody mistakes it for a gas pedal */
+.act.off { visibility: hidden; opacity: 0; pointer-events: none; animation: none; }
+.act:not(.off) { animation: actpop 0.25s cubic-bezier(0.2, 1.8, 0.4, 1), actpulse 0.7s ease-in-out 0.25s infinite; }
+.act.cool { animation: actpop 0.25s cubic-bezier(0.2, 1.8, 0.4, 1); }
+@keyframes actpop { from { transform: scale(0.3); opacity: 0; } }
+.act.cool { background: rgba(60, 60, 90, 0.75); border-color: rgba(255, 255, 255, 0.4); box-shadow: none; color: #aaa; }
 .act:active { transform: translateY(3px); }
 @keyframes actpulse { 50% { transform: scale(1.07); } }
 .honk { width: 58px; height: 58px; border-radius: 50%; background: rgba(0, 0, 30, 0.7); border: 2px solid rgba(255, 255, 255, 0.5); font-size: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
@@ -374,7 +396,7 @@ em { font-style: normal; color: #fff; }
 }
 .drive-hint.on { display: block; }
 .push-banner {
-  position: absolute; left: 50%; top: calc(180px + var(--sat)); transform: translateX(-50%); padding: 6px 12px; background: var(--red); border-radius: 4px;
+  position: absolute; left: 50%; top: calc(222px + var(--sat)); transform: translateX(-50%); padding: 6px 12px; background: var(--red); border-radius: 4px;
   font-size: 13px; white-space: nowrap; display: none; animation: blink 0.8s steps(2) infinite;
 }
 .push-banner.on { display: block; }
@@ -547,8 +569,7 @@ em { font-style: normal; color: #fff; }
   #title-menu button { padding: 7px 18px 7px 34px; margin: 3px 0; font-size: 15px; }
   .hiscore { display: none; }
   .objectives { width: 210px; }
-  #joyzone { top: calc(90px + var(--sat)); width: 50%; }
-  .next { bottom: calc(14px + var(--sab)); }
+  .next { top: auto; bottom: calc(14px + var(--sab)); }
   .act { width: 92px; height: 92px; }
   .sheet { left: auto; right: calc(8px + var(--sar)); top: calc(52px + var(--sat)); bottom: 8px; width: min(380px, 52vw); border-radius: 12px; border: 3px solid var(--bolt); max-height: none; padding-bottom: 12px; }
   .card-box { left: auto; right: calc(12px + var(--sar)); transform: none; bottom: 10px; top: calc(52px + var(--sat)); overflow: auto; width: min(380px, 50vw); }
