@@ -605,8 +605,9 @@ em { font-style: normal; color: #fff; }
 .tut-box {
   width: min(94vw, 460px); max-height: calc(100dvh - 24px); overflow: auto; padding: 0 14px 14px; text-align: center; touch-action: pan-y;
   background: linear-gradient(180deg, rgba(22, 32, 100, 0.97), rgba(8, 10, 44, 0.98)); border: 3px solid var(--fish); border-radius: 10px;
-  box-shadow: 0 0 30px rgba(51, 204, 255, 0.5); animation: cardin 0.35s cubic-bezier(0.2, 1.6, 0.4, 1);
+  box-shadow: 0 0 30px rgba(51, 204, 255, 0.5); animation: tutin 0.3s cubic-bezier(0.2, 1.6, 0.4, 1);
 }
+@keyframes tutin { from { transform: scale(0.85); opacity: 0; } }
 #tut.k-bolt .tut-box { border-color: var(--bolt); box-shadow: 0 0 30px rgba(255, 224, 42, 0.45); }
 .tut-head {
   margin: 0 -14px 10px; padding: 10px; font-family: var(--logo); font-size: clamp(20px, 6.5vw, 30px); color: #fff;
