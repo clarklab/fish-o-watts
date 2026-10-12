@@ -22,7 +22,7 @@ These are always on screen in the HUD checklist:
 A Crazy-Taxi-style arrow floats over the car and always points at the next thing to do. The **NEXT** bar at the bottom of the screen says what and where.
 
 Controls:
-- **Touch:** drag anywhere on the left side to drive, and use the big action button.
+- **Touch:** drag anywhere on screen to drive (the stick appears under your thumb). The action button pops up when you reach a beacon.
 - **Keyboard:** WASD or the arrow keys to drive, Space for the action button, H to honk, Esc to pause.
 
 ## Rockport, as rendered by a fever dream

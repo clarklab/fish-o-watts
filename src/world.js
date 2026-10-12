@@ -96,6 +96,20 @@ class Colliders {
   }
   circle(x, z, r) { this.insert({ t: 0, x, z, r, minX: x - r, maxX: x + r, minZ: z - r, maxZ: z + r }); }
   box(cx, cz, hw, hd) { this.insert({ t: 1, minX: cx - hw, maxX: cx + hw, minZ: cz - hd, maxZ: cz + hd }); }
+  // is a circle at (x, z) overlapping anything? (read-only probe for the steering assist)
+  hits(x, z, r) {
+    const cx = Math.floor(x / this.size), cz = Math.floor(z / this.size);
+    for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) {
+      const l = this.cells.get(this.key(cx + i, cz + j));
+      if (!l) continue;
+      for (const c of l) {
+        if (c.t === 0) { if (Math.hypot(x - c.x, z - c.z) < r + c.r) return true; }
+        else if (Math.hypot(x - Math.max(c.minX, Math.min(x, c.maxX)), z - Math.max(c.minZ, Math.min(z, c.maxZ))) < r) return true;
+      }
+    }
+    return false;
+  }
+
   // push a circle out of everything; returns true on hit
   resolve(p, r) {
     const list = this.cells.get(this.key(Math.floor(p.x / this.size), Math.floor(p.z / this.size)));
@@ -716,8 +730,8 @@ export function buildWorld(scene) {
     const t = new THREE.CanvasTexture(c);
     return t;
   })();
-  const ringGeo = new THREE.TorusGeometry(7, 0.35, 4, 28).rotateX(Math.PI / 2);
-  const pillarGeo = new THREE.CylinderGeometry(6.6, 6.6, 28, 18, 1, true);
+  const ringGeo = new THREE.TorusGeometry(9, 0.4, 4, 32).rotateX(Math.PI / 2);
+  const pillarGeo = new THREE.CylinderGeometry(8.6, 8.6, 28, 18, 1, true);
   const addMarker = (id, pos, kind, color) => {
     const [x, z] = pos;
     const y = surfaceY(x, z);

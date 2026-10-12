@@ -331,7 +331,7 @@ em { font-style: normal; color: #fff; }
 }
 
 .next {
-  position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(132px + var(--sab));
+  position: absolute; left: 50%; transform: translateX(-50%); top: calc(186px + var(--sat));
   max-width: 92vw; padding: 6px 12px; border-radius: 20px; background: rgba(0, 0, 30, 0.78); border: 2px solid var(--yellow);
   font-size: 13px; white-space: nowrap; display: flex; gap: 8px; align-items: center; box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
 }
@@ -343,12 +343,30 @@ em { font-style: normal; color: #fff; }
 #hud.mini .objectives, #hud.mini #minimap, #hud.mini .ticker, #hud.mini .next, #hud.mini .btns,
 #hud.mini #joyzone, #hud.mini #joybase, #hud.mini .drive-hint, #hud.mini .push-banner { display: none !important; }
 
-#joyzone { position: absolute; left: 0; top: calc(180px + var(--sat)); bottom: 0; width: 62%; touch-action: none; }
+/* drag anywhere below the top bar to steer; buttons and the top bar sit above it */
+#joyzone { position: absolute; left: 0; right: 0; top: calc(50px + var(--sat)); bottom: 0; touch-action: none; z-index: 1; }
+.hud-top, .btns { z-index: 3; }
 #joybase {
-  position: absolute; width: 112px; height: 112px; margin: -56px 0 0 -56px; border-radius: 50%; display: none; pointer-events: none;
-  background: radial-gradient(circle, rgba(127, 243, 255, 0.12), rgba(127, 243, 255, 0.04)); border: 3px solid rgba(127, 243, 255, 0.55);
+  position: absolute; width: 112px; height: 112px; margin: -56px 0 0 -56px; border-radius: 50%; display: none; pointer-events: none; z-index: 2;
+  background: radial-gradient(circle, rgba(127, 243, 255, 0.16), rgba(127, 243, 255, 0.05)); border: 3px solid rgba(127, 243, 255, 0.6);
 }
-#joybase.on { display: block; }
+#joybase.on, #joybase.rest { display: block; }
+#joybase.rest { opacity: 0.55; }
+#joybase.demo { opacity: 1; animation: joyring 1.4s ease-out infinite; }
+#joybase.demo #joyknob { animation: joydemo 2.4s ease-in-out infinite; }
+.joylabel {
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 8px; white-space: nowrap; display: none;
+  font-size: 13px; letter-spacing: 1px; color: var(--cyan); text-shadow: 2px 2px 0 #000;
+}
+#joybase.demo .joylabel { display: block; animation: blink 1.2s steps(2) infinite; }
+@keyframes joyring { from { box-shadow: 0 0 0 0 rgba(127, 243, 255, 0.6); } to { box-shadow: 0 0 0 28px rgba(127, 243, 255, 0); } }
+@keyframes joydemo {
+  0%, 100% { transform: translate(-50%, -50%); }
+  25% { transform: translate(-50%, calc(-50% - 34px)); }
+  50% { transform: translate(calc(-50% + 34px), -50%); }
+  75% { transform: translate(calc(-50% - 34px), -50%); }
+}
+@media (hover: hover) and (pointer: fine) { #joybase.rest { display: none; } }
 #joyknob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; border-radius: 50%; transform: translate(-50%, -50%); background: radial-gradient(circle at 35% 35%, #fff, #7ff3ff 40%, #2a7fff); box-shadow: 0 0 14px rgba(127, 243, 255, 0.7); }
 
 .btns { position: absolute; right: calc(14px + var(--sar)); bottom: calc(20px + var(--sab)); display: flex; align-items: flex-end; gap: 12px; }
@@ -361,8 +379,12 @@ em { font-style: normal; color: #fff; }
 #act-ico { font-size: 28px; line-height: 1; }
 .act.k-fish { background: radial-gradient(circle at 40% 30%, #fff, #66ddff 30%, #0070c0); box-shadow: 0 5px 0 #003a6a, 0 0 24px rgba(51, 204, 255, 0.9); }
 .act.k-bolt { background: radial-gradient(circle at 40% 30%, #fff, #ffe85a 30%, #d09000); box-shadow: 0 5px 0 #5a3a00, 0 0 24px rgba(255, 224, 42, 0.9); color: #2a1a00; text-shadow: none; }
-.act.off { animation: none; background: rgba(40, 40, 70, 0.6); border-color: rgba(255, 255, 255, 0.3); box-shadow: none; color: rgba(255, 255, 255, 0.45); text-shadow: none; }
-.act.cool { animation: none; background: rgba(60, 60, 90, 0.75); border-color: rgba(255, 255, 255, 0.4); box-shadow: none; color: #aaa; }
+/* idle = hidden: it only exists at a beacon, so nobody mistakes it for a gas pedal */
+.act.off { visibility: hidden; opacity: 0; pointer-events: none; animation: none; }
+.act:not(.off) { animation: actpop 0.25s cubic-bezier(0.2, 1.8, 0.4, 1), actpulse 0.7s ease-in-out 0.25s infinite; }
+.act.cool { animation: actpop 0.25s cubic-bezier(0.2, 1.8, 0.4, 1); }
+@keyframes actpop { from { transform: scale(0.3); opacity: 0; } }
+.act.cool { background: rgba(60, 60, 90, 0.75); border-color: rgba(255, 255, 255, 0.4); box-shadow: none; color: #aaa; }
 .act:active { transform: translateY(3px); }
 @keyframes actpulse { 50% { transform: scale(1.07); } }
 .honk { width: 58px; height: 58px; border-radius: 50%; background: rgba(0, 0, 30, 0.7); border: 2px solid rgba(255, 255, 255, 0.5); font-size: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
@@ -374,7 +396,7 @@ em { font-style: normal; color: #fff; }
 }
 .drive-hint.on { display: block; }
 .push-banner {
-  position: absolute; left: 50%; top: calc(180px + var(--sat)); transform: translateX(-50%); padding: 6px 12px; background: var(--red); border-radius: 4px;
+  position: absolute; left: 50%; top: calc(222px + var(--sat)); transform: translateX(-50%); padding: 6px 12px; background: var(--red); border-radius: 4px;
   font-size: 13px; white-space: nowrap; display: none; animation: blink 0.8s steps(2) infinite;
 }
 .push-banner.on { display: block; }
@@ -547,8 +569,7 @@ em { font-style: normal; color: #fff; }
   #title-menu button { padding: 7px 18px 7px 34px; margin: 3px 0; font-size: 15px; }
   .hiscore { display: none; }
   .objectives { width: 210px; }
-  #joyzone { top: calc(90px + var(--sat)); width: 50%; }
-  .next { bottom: calc(14px + var(--sab)); }
+  .next { top: auto; bottom: calc(14px + var(--sab)); }
   .act { width: 92px; height: 92px; }
   .sheet { left: auto; right: calc(8px + var(--sar)); top: calc(52px + var(--sat)); bottom: 8px; width: min(380px, 52vw); border-radius: 12px; border: 3px solid var(--bolt); max-height: none; padding-bottom: 12px; }
   .card-box { left: auto; right: calc(12px + var(--sar)); transform: none; bottom: 10px; top: calc(52px + var(--sat)); overflow: auto; width: min(380px, 50vw); }
@@ -569,4 +590,108 @@ em { font-style: normal; color: #fff; }
   .obj { font-size: 14px; }
   #minimap { width: 140px; height: 140px; }
   .ticker { left: 50%; transform: translateX(-50%); width: 560px; }
+}
+
+/* ------------------------------------------------------------ FIRST-TIME HOW-TO */
+.mg-help {
+  flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%; font-size: 15px; line-height: 1;
+  background: rgba(255, 255, 255, 0.15); border: 2px solid rgba(255, 255, 255, 0.6);
+}
+.mg-help:active { transform: scale(0.9); }
+#fishui .mg-help { pointer-events: auto; }
+
+#tut { background: rgba(2, 0, 16, 0.78); z-index: 30; }
+#tut.on { display: grid; place-items: center; }
+.tut-box {
+  width: min(94vw, 460px); max-height: calc(100dvh - 24px); overflow: auto; padding: 0 14px 14px; text-align: center; touch-action: pan-y;
+  background: linear-gradient(180deg, rgba(22, 32, 100, 0.97), rgba(8, 10, 44, 0.98)); border: 3px solid var(--fish); border-radius: 10px;
+  box-shadow: 0 0 30px rgba(51, 204, 255, 0.5); animation: tutin 0.3s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+@keyframes tutin { from { transform: scale(0.85); opacity: 0; } }
+#tut.k-bolt .tut-box { border-color: var(--bolt); box-shadow: 0 0 30px rgba(255, 224, 42, 0.45); }
+.tut-head {
+  margin: 0 -14px 10px; padding: 10px; font-family: var(--logo); font-size: clamp(20px, 6.5vw, 30px); color: #fff;
+  background: linear-gradient(90deg, #0070c0, #33ccff, #0070c0); text-shadow: 3px 3px 0 #002a5a; display: flex; gap: 10px; justify-content: center; align-items: center;
+}
+#tut.k-bolt .tut-head { background: linear-gradient(90deg, #b07000, #ffe02a, #b07000); color: #2a1a00; text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.5); }
+.tut-steps { display: none; gap: 8px; text-align: left; }
+.tut-steps.on { display: grid; }
+.tstep { display: grid; grid-template-columns: 26px 96px 1fr; gap: 10px; align-items: center; padding: 8px; border-radius: 6px; background: rgba(0, 0, 0, 0.4); }
+.tnum { font-size: 24px; text-align: center; color: var(--yellow); }
+.tdemo { height: 60px; display: grid; place-items: center; border-radius: 6px; background: rgba(0, 20, 60, 0.6); overflow: hidden; }
+.ttxt b { display: block; font-size: 15px; letter-spacing: 1px; color: #fff; }
+.ttxt small { display: block; font-size: 12.5px; line-height: 1.35; opacity: 0.92; font-family: system-ui, sans-serif; font-weight: 700; }
+.ttxt em { color: #fff; text-decoration: underline; text-decoration-thickness: 2px; }
+em.t-gold { color: #ffd23a; } em.t-green { color: var(--green); } em.t-red { color: var(--red); }
+.tut-foot { margin: 10px 0; font-size: 11px; letter-spacing: 1px; opacity: 0.75; }
+#tut-go { width: 100%; }
+#tut.k-bolt #tut-go { background: radial-gradient(circle at 40% 30%, #fff, #ffe85a 35%, #d09000); color: #2a1a00; text-shadow: none; box-shadow: 0 4px 0 #5a3a00, 0 0 20px rgba(255, 224, 42, 0.6); }
+
+/* mini demos */
+.mini-power { position: relative; width: 84px; height: 18px; display: flex; border: 2px solid #fff; border-radius: 4px; }
+.mini-power i:nth-child(1) { flex: 35; background: #c03030; }
+.mini-power i:nth-child(2) { flex: 47; background: #20a050; }
+.mini-power i:nth-child(3) { flex: 18; background: #ffb800; }
+.mini-power b { position: absolute; top: -6px; bottom: -6px; width: 5px; margin-left: -2px; background: #fff; border: 1px solid #000; animation: minislide 1.6s ease-in-out infinite; }
+@keyframes minislide { 0% { left: 0; } 70% { left: 92%; } 78%, 100% { left: 92%; } }
+.mini-bang { font-family: var(--logo); font-size: 44px; color: var(--yellow); text-shadow: 3px 3px 0 #a00000; animation: minibang 1.2s ease-in-out infinite; }
+@keyframes minibang { 0%, 12% { transform: scale(0.2); opacity: 0.3; } 22% { transform: scale(1.35); opacity: 1; } 32%, 100% { transform: scale(1); } }
+.mini-reel { position: relative; width: 26px; height: 52px; border: 2px solid #fff; border-radius: 5px; background: #022040; }
+.mini-reel .mz { position: absolute; left: 2px; right: 2px; height: 20px; background: rgba(61, 255, 122, 0.5); border: 2px solid var(--green); border-radius: 3px; animation: minizone 2s ease-in-out infinite; }
+.mini-reel .mf { position: absolute; left: 50%; font-size: 13px; transform: translateX(-50%) scaleX(-1); animation: minifish 2s ease-in-out infinite; }
+@keyframes minizone { 0%, 100% { bottom: 2px; } 50% { bottom: 26px; } }
+@keyframes minifish { 0%, 100% { bottom: 5px; } 50% { bottom: 30px; } }
+.mini-match { display: grid; gap: 1px; justify-items: center; font-size: 8.5px; letter-spacing: 0.3px; }
+.mini-match span:first-child { padding: 1px 4px; background: #000; color: var(--yellow); border-radius: 3px; }
+.mini-match .mm-arrow { color: var(--yellow); font-size: 9px; animation: blink 0.8s steps(2) infinite; }
+.mini-match .mm-ok { white-space: nowrap; padding: 2px 4px; border: 1px solid var(--green); color: var(--green); border-radius: 3px; background: rgba(61, 255, 122, 0.15); }
+.mini-gauge {
+  position: relative; width: 80px; height: 40px; border-radius: 80px 80px 0 0; overflow: hidden; margin-top: 16px;
+  background: conic-gradient(from 270deg at 50% 100%, #c0203a 0deg 65deg, #3dff7a 65deg 115deg, #c0203a 115deg 180deg, transparent 180deg);
+}
+.mini-gauge::after { content: ''; position: absolute; left: 14px; right: 14px; top: 14px; bottom: -26px; border-radius: 50%; background: #0a1a3a; }
+.mg-needle { position: absolute; left: 50%; bottom: 0; width: 3px; height: 36px; margin-left: -1.5px; background: #fff; transform-origin: 50% 100%; z-index: 1; animation: mininiddle 2.2s ease-in-out infinite; }
+@keyframes mininiddle { 0%, 100% { transform: rotate(-12deg); } 35% { transform: rotate(14deg); } 60% { transform: rotate(62deg); } 80% { transform: rotate(-58deg); } }
+.mini-pat { width: 80px; height: 8px; border-radius: 4px; background: #222; overflow: hidden; }
+.mini-pat i { display: block; height: 100%; background: linear-gradient(90deg, #ff3355, #ffe02a, #3dff7a); animation: minipat 3s linear infinite; }
+@keyframes minipat { from { width: 100%; } to { width: 0; } }
+
+/* the hold button tells you when to press and when to let go */
+@media (orientation: landscape) and (max-height: 520px) {
+  .tut-box { width: min(96vw, 860px); padding-bottom: 10px; }
+  .tut-head { padding: 5px; margin-bottom: 8px; font-size: 22px; }
+  .tut-steps.on { grid-template-columns: repeat(3, 1fr); }
+  .tstep { position: relative; grid-template-columns: 1fr; gap: 6px; text-align: center; }
+  .tnum { position: absolute; left: 8px; top: 4px; font-size: 18px; }
+  .tdemo { height: 50px; }
+  .ttxt small { font-size: 11.5px; }
+  .tut-foot { margin: 6px 0; }
+  #tut-go { padding: 10px; font-size: 17px; }
+}
+
+.hold-btn.go { animation: holdgo 0.45s ease-in-out infinite; }
+@keyframes holdgo { 50% { transform: scale(1.04); box-shadow: 0 5px 0 #5a3a00, 0 0 36px rgba(61, 255, 122, 0.95); } }
+.hold-btn.stop { background: radial-gradient(circle at 40% 30%, #fff, #ff8a9a 35%, #c0203a); color: #fff; box-shadow: 0 5px 0 #5a0010, 0 0 30px rgba(255, 51, 85, 0.9); }
+
+/* landscape phones: the charging panel must fit 390px of height with HOLD on screen */
+@media (orientation: landscape) and (max-height: 520px) {
+  .sheet { width: min(480px, 56vw); padding: 8px 10px 10px; bottom: auto; max-height: calc(100dvh - 60px - var(--sat)); }
+  .ch-spec { margin: 4px 0 0; }
+  .ch-quote { font-size: 11px; margin: 2px 0 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .sheet:has(#ch-step-gauge.on) .ch-quote { display: none; }
+  .ch-ask { margin: 2px 0 6px; font-size: 12px; }
+  .ch-adapters { gap: 5px; }
+  .ch-adapters button { padding: 6px 10px; font-size: 13px; }
+  .ch-adapters .ai { width: 28px; height: 28px; font-size: 15px; }
+  #ch-step-gauge.on {
+    display: grid; grid-template-columns: 1.15fr 1fr; column-gap: 10px; align-items: center;
+    grid-template-areas: "ask ask" "gauge status" "gauge pat" "gauge btns";
+  }
+  #ch-step-gauge .ch-ask { grid-area: ask; }
+  #ch-step-gauge .gauge-wrap { grid-area: gauge; }
+  #ch-step-gauge .ch-status { grid-area: status; font-size: 13px; margin: 0; }
+  #ch-step-gauge .ch-pat { grid-area: pat; margin: 0; }
+  #ch-step-gauge .ch-btns { grid-area: btns; flex-direction: column-reverse; gap: 6px; }
+  .hold-btn { padding: 14px 8px; font-size: 20px; }
+  #ch-step-gauge .small-btn { padding: 6px; font-size: 12px; }
 }

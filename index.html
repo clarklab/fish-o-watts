@@ -82,8 +82,8 @@
           <div class="goal g-trophy"><b>3</b><span class="gi">🏆</span><div><strong>WEIGH IN BEFORE SUNSET</strong><small>The <em class="c-trophy">PINK BEACON</em> at the beach. Sunset is 7:30 PM (about 2½ minutes).</small></div></div>
         </div>
         <div class="controls">
-          <div><span class="key">👈 DRAG</span> left side to drive · <span class="key">WASD/↑↓←→</span></div>
-          <div><span class="key">ACTION</span> big button · <span class="key">SPACE</span></div>
+          <div><span class="key">👆 DRAG</span> anywhere to drive · <span class="key">WASD/↑↓←→</span></div>
+          <div><span class="key">ACTION</span> button pops up at a beacon · <span class="key">SPACE</span></div>
           <div><span class="key">HONK</span> does nothing · <span class="key">H</span> (probably)</div>
           <div>🔋 0% battery? Shaheen gets out and pushes.</div>
           <div>➜ Follow the big floating arrow. It knows the way.</div>
@@ -183,7 +183,7 @@
     <canvas id="minimap" width="160" height="160"></canvas>
     <div class="next" id="next"><span class="next-l">NEXT</span><span id="next-txt"></span></div>
     <div id="joyzone"></div>
-    <div id="joybase"><div id="joyknob"></div></div>
+    <div id="joybase"><div id="joyknob"></div><div class="joylabel">DRAG TO DRIVE</div></div>
     <div class="btns">
       <button id="btn-honk" class="honk">📯<small>HONK</small></button>
       <button id="btn-act" class="act off"><span id="act-ico">·</span><span id="act-txt">DRIVE</span></button>
@@ -197,6 +197,7 @@
     <div class="mg-top">
       <div class="mg-head"><span class="mg-ico">🎣</span><span id="fi-spot">SPOT</span></div>
       <div class="mg-goal" id="fi-goal">🎣 FISH 0/3</div>
+      <button class="mg-help" id="fi-help" aria-label="How to fish">?</button>
     </div>
     <div class="mg-prompt" id="fi-prompt">TAP TO CAST!</div>
     <div class="mg-sub" id="fi-sub"></div>
@@ -219,6 +220,7 @@
       <div class="mg-top">
         <div class="mg-head"><span class="mg-ico">⚡</span><span id="ch-name">CHARGER</span></div>
         <div class="mg-goal" id="ch-goal">⚡ 12% / 80%</div>
+        <button class="mg-help" id="ch-help" aria-label="How to charge">?</button>
       </div>
       <div class="ch-spec"><b id="ch-volts"></b> · PLUG: <b id="ch-plug"></b></div>
       <div class="ch-quote" id="ch-quote"></div>
@@ -254,6 +256,49 @@
       <div class="card-fx" id="card-fx"></div>
       <div class="card-goal" id="card-goal"></div>
       <div class="card-btns"><button id="card-leave" class="small-btn">DRIVE ON</button><button id="card-again" class="big-btn">CAST AGAIN</button></div>
+    </div>
+  </section>
+
+  <!-- FIRST-TIME HOW-TO (fishing / charging) -->
+  <section id="tut" class="screen">
+    <div class="tut-box">
+      <div class="tut-head"><span id="tut-ico">🎣</span><span id="tut-title">HOW TO FISH</span></div>
+      <div class="tut-steps" id="tut-fish">
+        <div class="tstep">
+          <div class="tnum">1</div>
+          <div class="tdemo"><div class="mini-power"><i></i><i></i><i></i><b></b></div></div>
+          <div class="ttxt"><b>CAST</b><small>A marker slides along the bar. <em>TAP</em> when it's in the <em class="t-gold">GOLD</em> zone for bigger, weirder fish.</small></div>
+        </div>
+        <div class="tstep">
+          <div class="tnum">2</div>
+          <div class="tdemo"><div class="mini-bang">!</div></div>
+          <div class="ttxt"><b>HOOK</b><small>Wait for the bobber to dip and the big <em class="t-gold">!</em> to pop up, then <em>TAP</em> fast. Tapping early scares the fish.</small></div>
+        </div>
+        <div class="tstep">
+          <div class="tnum">3</div>
+          <div class="tdemo"><div class="mini-reel"><span class="mz"></span><span class="mf">🐟</span></div></div>
+          <div class="ttxt"><b>REEL</b><small><em>HOLD</em> anywhere to raise the <em class="t-green">GREEN box</em>, let go to drop it. Keep the fish inside the box until the meter fills.</small></div>
+        </div>
+      </div>
+      <div class="tut-steps" id="tut-charge">
+        <div class="tstep">
+          <div class="tnum">1</div>
+          <div class="tdemo"><div class="mini-match"><span>PLUG: NEMA 5-15</span><span class="mm-arrow">▼</span><span class="mm-ok">NEMA 5-15 → J1772</span></div></div>
+          <div class="ttxt"><b>PICK THE ADAPTER</b><small>Tap the adapter whose name matches the charger's <em>PLUG</em>. Wrong ones zap you. Some are a hot dog.</small></div>
+        </div>
+        <div class="tstep">
+          <div class="tnum">2</div>
+          <div class="tdemo"><div class="mini-gauge"><i class="mg-needle"></i></div></div>
+          <div class="ttxt"><b>HOLD ⚡ IN THE GREEN</b><small>The needle wobbles. <em>HOLD</em> the big button only while it's <em class="t-green">GREEN</em>. If it swings into <em class="t-red">RED</em>, let go or get <em class="t-red">ZAPPED</em>.</small></div>
+        </div>
+        <div class="tstep">
+          <div class="tnum">3</div>
+          <div class="tdemo"><div class="mini-pat"><i></i></div></div>
+          <div class="ttxt"><b>BEAT THE BREAKER</b><small>Each charger quits when <em>BREAKER PATIENCE</em> runs out. Hit a few chargers to reach <em class="t-gold">80%</em>. UNPLUG anytime.</small></div>
+        </div>
+      </div>
+      <div class="tut-foot">⏸ Clock paused · tap <b>?</b> anytime to see this again</div>
+      <button class="big-btn" id="tut-go">GOT IT!</button>
     </div>
   </section>
 

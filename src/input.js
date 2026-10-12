@@ -1,9 +1,11 @@
-// Touch joystick (left side) + keyboard. Joystick is world-relative:
+// Floating touch joystick + keyboard. The stick is world-relative:
 // push up = drive north (screen up), because the camera never rotates.
+// It rests as a visible "ghost" in the bottom-left so first-timers know
+// what to grab, but a drag starting anywhere on screen works too.
 
 export const input = {
-  x: 0, // -1..1 (east +)
-  y: 0, // -1..1 (south +)
+  x: 0, // east +
+  y: 0, // south +
   keys: new Set(),
   joyId: null,
   joyActive: false,
@@ -15,12 +17,29 @@ export const input = {
 
 let base, knob, zone;
 let ox = 0, oy = 0;
-const R = 56;
+const R = 56; // knob travel in px
+const FULL = R * 0.8; // full throttle before the knob hits the rim
+
+function restPos() {
+  const w = innerWidth, h = innerHeight;
+  return [Math.min(140, Math.max(84, w * 0.2)), h - Math.min(190, Math.max(120, h * 0.2))];
+}
+
+function toRest() {
+  const [x, y] = restPos();
+  base.style.left = `${x}px`;
+  base.style.top = `${y}px`;
+  knob.style.transform = '';
+  base.classList.remove('on');
+  base.classList.add('rest');
+}
 
 export function initInput() {
   zone = document.getElementById('joyzone');
   base = document.getElementById('joybase');
   knob = document.getElementById('joyknob');
+  toRest();
+  addEventListener('resize', () => { if (!input.joyActive) toRest(); });
 
   zone.addEventListener('pointerdown', (e) => {
     if (!input.enabled || input.joyId !== null) return;
@@ -29,9 +48,10 @@ export function initInput() {
     ox = e.clientX; oy = e.clientY;
     base.style.left = `${ox}px`;
     base.style.top = `${oy}px`;
+    base.classList.remove('rest');
     base.classList.add('on');
     knob.style.transform = 'translate(-50%,-50%)';
-    zone.setPointerCapture?.(e.pointerId);
+    try { zone.setPointerCapture(e.pointerId); } catch { /* not all browsers allow it */ }
     e.preventDefault();
   });
   const move = (e) => {
@@ -47,8 +67,8 @@ export function initInput() {
       dx = e.clientX - ox; dy = e.clientY - oy;
     }
     knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-    input.x = dx / R;
-    input.y = dy / R;
+    input.x = dx / FULL;
+    input.y = dy / FULL;
     e.preventDefault();
   };
   const end = (e) => {
@@ -56,7 +76,7 @@ export function initInput() {
     input.joyId = null;
     input.joyActive = false;
     input.x = input.y = 0;
-    base.classList.remove('on');
+    toRest();
   };
   zone.addEventListener('pointermove', move);
   zone.addEventListener('pointerup', end);
@@ -83,16 +103,16 @@ export function readStick() {
   if (!input.joyActive) {
     x = (k.has('arrowright') || k.has('d') ? 1 : 0) - (k.has('arrowleft') || k.has('a') ? 1 : 0);
     y = (k.has('arrowdown') || k.has('s') ? 1 : 0) - (k.has('arrowup') || k.has('w') ? 1 : 0);
-    const m = Math.hypot(x, y);
-    if (m > 1) { x /= m; y /= m; }
   }
   const m = Math.min(1, Math.hypot(x, y));
   return { x, y, m };
 }
 
+export function setJoyDemo(on) { base?.classList.toggle('demo', on); }
+
 export function resetStick() {
   input.x = input.y = 0;
   input.joyId = null;
   input.joyActive = false;
-  base?.classList.remove('on');
+  if (base) toRest();
 }
